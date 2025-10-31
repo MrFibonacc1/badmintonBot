@@ -42,6 +42,46 @@ import { chromium } from 'playwright';
   console.log('Opening page...');
   await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded' });
 
+  // === WAIT UNTIL 6:00 PM ===
+  const waitUntil6PM = () => {
+    return new Promise((resolve) => {
+      const checkTime = () => {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+        const milliseconds = now.getMilliseconds();
+
+        console.log(`Current time: ${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+
+        if (hours === 18 && minutes === 0 && seconds === 0) {
+          // It's exactly 6:00:00 PM
+          console.log('✅ It\'s 6:00 PM! Proceeding with booking...');
+          resolve();
+        } else if (hours > 18 || (hours === 18 && minutes > 0)) {
+          // It's already past 6:00 PM
+          console.log('⚠️  It\'s already past 6:00 PM. Proceeding immediately...');
+          resolve();
+        } else {
+          // Calculate time until 6:00 PM
+          const targetTime = new Date();
+          targetTime.setHours(18, 0, 0, 0);
+          const timeUntil = targetTime - now;
+          const minutesUntil = Math.floor(timeUntil / 60000);
+          const secondsUntil = Math.floor((timeUntil % 60000) / 1000);
+
+          console.log(`⏰ Waiting until 6:00 PM... (${minutesUntil}m ${secondsUntil}s remaining)`);
+
+          // Check again in 100ms for precision
+          setTimeout(checkTime, 100);
+        }
+      };
+      checkTime();
+    });
+  };
+
+  await waitUntil6PM();
+
   // === CLICK BADMINTON BUTTON ===
   console.log('Clicking Badminton button...');
   if (dayOfWeek === 'Thursday' || dayOfWeek === 'Friday') {
@@ -92,7 +132,7 @@ import { chromium } from 'playwright';
     await page.fill('#telephone', PHONE);
     await page.fill('#email', EMAIL);
     await page.fill('#field2021', NAME);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2000);
     console.log('✅ Contact information filled.');
 
     // Click the final Confirm button
@@ -183,8 +223,9 @@ import { chromium } from 'playwright';
     console.log('Filling contact information...');
     await page.fill('#telephone', PHONE);
     await page.fill('#email', EMAIL);
-    await page.fill('#field2021', NAME);
     await page.waitForTimeout(1000);
+    await page.fill('#field2021', NAME);
+    await page.waitForTimeout(2000);
     console.log('✅ Contact information filled.');
 
     // Click the final Confirm button
