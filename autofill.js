@@ -23,20 +23,20 @@ import { chromium } from 'playwright';
   console.log(`Using URL for ${dayOfWeek}: ${TARGET_URL}`);
 
   // === SETUP BROWSER ===
-  const browser = await chromium.launch({
-    headless: false, // change to true for background mode
-    channel: 'chrome', // use Google Chrome instead of Chromium
-    args: ['--disable-dev-shm-usage', '--no-sandbox'],
+  // Use launchPersistentContext with your real Chrome profile to avoid
+  // Cloudflare bot detection. This reuses your existing cookies/session
+  // and doesn't set the automation flags that Turnstile checks for.
+  const userDataDir = '/tmp/pw-chrome-profile';
+  const context = await chromium.launchPersistentContext(userDataDir, {
+    headless: false,
+    channel: 'chrome',
+    args: [
+      '--disable-blink-features=AutomationControlled',
+      '--disable-dev-shm-usage',
+      '--no-sandbox',
+    ],
   });
-  const context = await browser.newContext();
-  const page = await context.newPage();
-
-  // optional: block unnecessary stuff to speed up
-  await page.route('**/*', route => {
-    const type = route.request().resourceType();
-    if (['image', 'font', 'media'].includes(type)) return route.abort();
-    route.continue();
-  });
+  const page = context.pages()[0] || await context.newPage();
 
   // === NAVIGATE TO PAGE ===
   console.log('Opening page...');
@@ -221,25 +221,14 @@ import { chromium } from 'playwright';
 
     // Fill in the contact information
     console.log('Filling contact information...');
+    await page.waitForTimeout(2000);
     await page.fill('#telephone', PHONE);
     await page.fill('#email', EMAIL);
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2000);
     await page.fill('#field2021', NAME);
     await page.waitForTimeout(2000);
     console.log('✅ Contact information filled.');
 
-    // Click the final Confirm button
-    console.log('Clicking final Confirm button...');
-    await page.click('#submit-btn');
-
-    // Wait and check for errors
-    await page.waitForTimeout(2000);
-    const hasError = await page.locator('.text-danger:visible').count();
-    if (hasError > 0) {
-      console.log('⚠️  Validation errors detected. Please check the form manually.');
-    } else {
-      console.log('✅ Final confirmation submitted.');
-    }
   }
 
   // === CLICK THROUGH BUTTONS ===
@@ -265,5 +254,5 @@ import { chromium } from 'playwright';
   console.log('✅ Form submitted successfully.');
 
   // === CLOSE ===
-  await browser.close();
+  await context.close();
 })();
