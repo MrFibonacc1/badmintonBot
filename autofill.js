@@ -153,7 +153,7 @@ import { chromium } from 'playwright';
     await page.waitForSelector('.date.one-queue', { timeout: 5000 });
     await page.evaluate(() => {
       const tuesdayElement = Array.from(document.querySelectorAll('.date.one-queue')).find(el =>
-        el.textContent.includes('Tuesday October')
+        el.textContent.includes('Tuesday')
       );
       if (tuesdayElement) {
         const link = tuesdayElement.querySelector('a.title');
@@ -231,28 +231,6 @@ import { chromium } from 'playwright';
 
   }
 
-  // === CLICK THROUGH BUTTONS ===
-  // You can chain multiple clicks as needed
-  // Replace with your own selectors/texts
-  console.log('Clicking buttons...');
-  await page.click('text="Start"').catch(() => {});   // example
-  await page.click('text="Continue"').catch(() => {}); // example
-
-  // === FILL FORM FIELDS ===
-  console.log('Filling form...');
-  await page.fill('#name', NAME);          // or 'input[name="name"]'
-  await page.fill('#email', EMAIL);
-  await page.fill('#phone', PHONE);
-
-  // === CLICK SUBMIT ===
-  console.log('Submitting form...');
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: 'networkidle' }).catch(() => {}),
-    page.click('button[type="submit"], text="Submit"'),
-  ]);
-
-  console.log('✅ Form submitted successfully.');
-
-  // === CLOSE ===
-  await context.close();
+  console.log('✅ Done! Browser will stay open for you to verify.');
+  // Press Ctrl+C in the terminal to close when you're done.
 })();
