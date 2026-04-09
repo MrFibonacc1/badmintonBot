@@ -15,7 +15,9 @@ import { chromium } from 'playwright';
 
   // === SET TARGET URL BASED ON DAY ===
   let TARGET_URL;
-  if (dayOfWeek === 'Thursday' || dayOfWeek === 'Friday') {
+  if (dayOfWeek === 'Thursday') {
+    TARGET_URL = 'https://reservation-cf.frontdeskqms.ca/rcfs/cardelrec/Home/Index?Culture=en&PageId=a10d1358-60a7-46b6-b5e9-5b990594b108&ShouldStartReserveTimeFlow=False&ButtonId=00000000-0000-0000-0000-000000000000';
+  } else if (dayOfWeek === 'Friday') {
     TARGET_URL = 'https://reservation.frontdesksuite.ca/rcfs/cardelrec/Home/Index?Culture=en&PageId=a10d1358-60a7-46b6-b5e9-5b990594b108&ShouldStartReserveTimeFlow=False&ButtonId=00000000-0000-0000-0000-000000000000';
   } else if (dayOfWeek === 'Tuesday') {
     TARGET_URL = 'https://reservation-cf.frontdeskqms.ca/rcfs/richcraftkanata/Home/Index?Culture=en&PageId=b3b9b36f-8401-466d-b4c4-19eb5547b43a&ShouldStartReserveTimeFlow=False&ButtonId=00000000-0000-0000-0000-000000000000';
@@ -101,7 +103,7 @@ import { chromium } from 'playwright';
 
   // === CLICK CONFIRM BUTTON ===
   console.log('Clicking Confirm button...');
-  await page.click('#submit-btn');
+  await page.click('#submit-btn', { timeout: 60000 });
   await page.waitForLoadState('domcontentloaded');
 
   // === DAY-SPECIFIC BOOKING FLOW ===
@@ -133,15 +135,20 @@ import { chromium } from 'playwright';
 
     // Fill in the contact information
     console.log('Filling contact information...');
+
     await page.fill('#telephone', PHONE);
+    await page.waitForTimeout(2000);
+
     await page.fill('#email', EMAIL);
+    await page.waitForTimeout(2000);
+
     await page.fill('#field2021', NAME);
     await page.waitForTimeout(2000);
     console.log('✅ Contact information filled.');
 
     // Click the final Confirm button
     console.log('Clicking final Confirm button...');
-    await page.click('#submit-btn');
+    await page.click('#submit-btn', { timeout: 60000 });
 
     // Wait and check for errors
     await page.waitForTimeout(2000);
@@ -187,7 +194,7 @@ import { chromium } from 'playwright';
 
     // Click the final Confirm button
     console.log('Clicking final Confirm button...');
-    await page.click('#submit-btn');
+    await page.click('#submit-btn', { timeout: 60000 });
 
     // Wait and check for errors
     await page.waitForTimeout(2000);
@@ -216,7 +223,7 @@ import { chromium } from 'playwright';
     console.log('Clicking 7:00 p.m. time slot...');
     await page.evaluate(() => {
       const timeSlot = Array.from(document.querySelectorAll('a.time-container')).find(el =>
-        el.getAttribute('aria-label')?.includes('7:00 p.m. Thursday')
+        el.getAttribute('aria-label')?.includes('8:00 p.m. Thursday')
       );
       if (timeSlot) timeSlot.click();
     });
@@ -239,7 +246,7 @@ import { chromium } from 'playwright';
 
     // Click the final Confirm button
     console.log('Clicking final Confirm button...');
-    await page.click('#submit-btn');
+    await page.click('#submit-btn', { timeout: 60000 });
 
     // Wait and check for errors
     await page.waitForTimeout(2000);
